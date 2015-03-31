@@ -1,0 +1,86 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+    
+    <f:view transient="true" >
+        <h:head>
+            <f:metadata>
+                <f:viewAction action="#{transientViewWithSessionScopeBeanPage.init}" />
+            </f:metadata>
+            <style>
+                ul.messages  {
+                    margin: 0;
+                    padding: 0;
+                }
+                li.error-messages {
+                    list-style-type: none;
+                    color: red;
+                }
+            </style>
+        </h:head>
+        <h:body>
+            <h1>transientなビューからAjaxと、SessionScopeなBeanを利用</h1>
+            <p>
+                AJAXの応答が返るまでは、p:dialog, p:ajaxStatusを使ってローディングアイコンを表示。
+            </p>
+
+            <!-- ローディングアイコン表示のための記述 -->
+            <p:dialog 
+                widgetVar="loadingIconDialog" modal="true" draggable="false" closable="false" resizable="false" showHeader="false"
+                style="box-shadow: none;">
+                <h:graphicImage library="app" name="image/loading.gif" style="margin-top: 5px;" />
+            </p:dialog>
+            <p:ajaxStatus onstart="PF('loadingIconDialog').show()" onsuccess="PF('loadingIconDialog').hide()" />
+            
+            
+            <h:panelGroup id="mainContent">
+                <h:form>
+                    <h:panelGrid columns="2">
+                        <h:panelGroup>
+                            何かを入力: 
+                        </h:panelGroup>
+                        <h:panelGroup>
+                            <h:inputText value="#{transientViewWithSessionScopeBeanPage.something}" >
+                                <f:passThroughAttribute name="placeholder" value="何かを入力します。" />
+                            </h:inputText>    
+                            <h:commandButton value="送信" action="#{transientViewWithSessionScopeBeanPage.doSomething}">
+                                <f:ajax execute="@form" render=":mainContent" />
+                            </h:commandButton>
+
+                        </h:panelGroup>
+
+
+                        <h:panelGroup>
+                        </h:panelGroup>
+                        <h:panelGroup>
+                            <h:messages errorClass="error-messages" class="messages"/>
+                        </h:panelGroup>
+                    </h:panelGrid>
+
+
+                    <h:panelGroup>
+                        <h:panelGroup rendered="#{not transientViewWithSessionScopeBeanPage.somethingDone}">
+                            ここに処理結果が表示されます。
+                        </h:panelGroup>
+
+                        <h:panelGroup rendered="#{transientViewWithSessionScopeBeanPage.somethingDone}">
+                            結果は #{transientViewWithSessionScopeBeanPage.result} です。
+                        </h:panelGroup>
+
+                        <div style="display: #{transientViewWithSessionScopeBeanPage.somethingDone ? 'block': 'none'}">
+                            <h:panelGroup id="secondForm">
+                                <h:commandButton value="さらに何かをします。" action="#{transientViewWithSessionScopeBeanPage.doAnotherThing}">
+                                    <f:ajax execute=":secondForm" render=":mainContent" />
+                                </h:commandButton>
+                            </h:panelGroup>
+                        </div>
+                    </h:panelGroup>
+                </h:form>
+            </h:panelGroup>
+        </h:body>
+    </f:view>
+</html>
+
