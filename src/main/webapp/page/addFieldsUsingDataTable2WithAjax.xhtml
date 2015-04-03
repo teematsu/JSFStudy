@@ -1,0 +1,67 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    
+    <h:head>
+        <style>
+            .repeated-form .ui-datalist-content.ui-widget-content {
+                border: none;
+            }
+        </style>
+    </h:head>
+    <h:body>
+
+        
+        <h:form id="myForm">
+            入力欄:
+            <h:panelGroup id="subBeanListContainer" >
+            <h:dataTable id="subBeanList" value="#{addFieldsPage2.subBeans}" var="subBean"  styleClass="repeated-form">
+                <h:column>
+                    <ui:fragment rendered="#{not subBean.deleted}">
+                        <h:inputText id="strField" value="#{subBean.strField}" />
+                        <h:commandButton value="削除" action="#{addFieldsPage2.removeSubBeanObject(subBean)}" immediate="true">
+                            <f:ajax render=":myForm:subBeanListContainer" />
+                        </h:commandButton>
+                        <h:message for="strField" />
+                    </ui:fragment>
+                </h:column>
+            </h:dataTable>
+            <h:commandButton value="追加する" action="#{addFieldsPage2.addSubBean()}" immediate="true">
+                            <f:ajax execute="subBeanList" render=":myForm:subBeanListContainer" />
+            </h:commandButton>
+            </h:panelGroup>
+            <div>
+                繰り返しとは無関係の入力欄: 
+                <h:inputText id="anotherField" value="#{addFieldsPage2.anotherField}" />
+                <h:message for="anotherField" />
+            </div>
+            <div>
+                <h:commandButton value="送信" action="#{addFieldsPage2.save()}" />
+            </div>
+        </h:form>
+
+        <br/>
+        <br/>
+        <p>
+            <h:link outcome="addFieldsUsingDataList2WithAjax.xhtml">addFieldsUsingDataList2WithAjax.xhtml</h:link>で、p:dataListの代わりにh:dataTableを使用したもの。
+            1 columnだけ定義することで、実質的に表ではなく単なる繰り返しとして表示する。
+            <p>
+            以下の問題がある。
+            </p>
+            <ul>
+                <li>h:commandButtonをimmediate="true"とすると、入力途中の内容は失われ、backing beanの内容にリセットされる。</li>
+                <li>削除は、renderedを使って表示を隠すことで実現しているが、空の tr, tdタグは出力されるため、直上の表示と間隔があいてしまう。</li>
+            </ul>
+            p:dataListの場合と異なり以下の対応が必要。
+            <ul>
+                <li>AJAXを使う場合、render=にはh:dataTableよりも外側のUIComponentを指定する。そうしないと、[削除]クリック時に表示が更新されない。(レスポンスにh:dataTableの中身が全く入ってこない)</li>
+            </ul>
+        </p>
+            
+
+    </h:body>
+</html>
+
