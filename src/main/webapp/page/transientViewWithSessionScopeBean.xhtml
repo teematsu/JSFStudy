@@ -80,6 +80,21 @@
                     </h:panelGroup>
                 </h:form>
             </h:panelGroup>
+            
+            <p>
+                AJAXによる部分更新をする場合で、画面に複数のフォームがある場合は、送信するフォームと別のフォームが更新対象に含まれると、
+                更新後のフォームにViewStateが含まれず、更新後のフォーム送信で異常が発生する。
+                
+                関連
+                <ul>
+                    <li>https://java.net/jira/browse/JAVASERVERFACES-1715</li>
+                    <li>https://java.net/jira/browse/JAVASERVERFACES_SPEC_PUBLIC-790</li>
+                </ul>
+                    
+            </p>
+            <p>
+                この例では、画面全体でformを1個にすることでこの制約を回避している。
+            </p>
         </h:body>
     </f:view>
 </html>
