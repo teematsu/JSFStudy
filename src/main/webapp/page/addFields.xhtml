@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <h:body>
+
+        <h:form>
+            入力欄:
+            <ul>
+                <ui:repeat value="#{addFieldsPage.subBeans}" var="subBean" varStatus="subBeansStatus">
+                    <li>
+                        #{subBeansStatus.index}
+                        <h:inputText id="strField" value="#{addFieldsPage.subBeans[subBeansStatus.index].strField}"/>
+                        <h:commandButton value="削除" action="#{addFieldsPage.removeSubBean(subBeansStatus.index)}" />
+                        <h:message for="strField" />
+                    </li>
+                </ui:repeat>
+                <li>
+                    <h:commandButton value="追加する" action="#{addFieldsPage.addSubBean()}"/>
+                    <!--
+                    strFieldのvalidationが走らないように immediate="true"を付けたいところだが、
+                    付けるとstrFieldに入れた値が消えてしまう。(backing beanに入っている値が表示される)
+                    この現象は、以下のメカニズムにより発生しているのではないか。
+                      immediate="true"だと、UIInputのApply Request Valueがスキップされbacking beanには反映されない。
+                      ui:repeatは、Render ResponseのたびにUIComponentのツリーを再構築する。(UIComponentが持つsubmitted valueが失われる)
+                    → 繰り返し入力欄のvalidationはあきらめるしかない。
+                    -->
+                </li>
+            </ul>
+            <div>
+                繰り返しとは無関係の入力欄: 
+                <h:inputText id="anotherField" value="#{addFieldsPage.anotherField}" />
+                <h:message for="anotherField" />
+            </div>
+            <div>
+                <h:commandButton value="送信" action="#{addFieldsPage.save()}" />
+            </div>
+        </h:form>
+
+        <br/>
+        <br/>
+        <div>
+            以下の問題があるため実用にならない。
+            <ul>
+                <li>いずれかの欄でvalidation エラーがあった場合(繰り返し以外の入力欄も含む)、入力内容を修正してvalidationエラーなしで送信すると、繰り返し入力のすべての欄が、繰り返しの最後と同じになる。</li>
+                <li>[追加する]ボタンでvalidationエラーが起きないようにimmedeiate="true"を付けると、[追加する]ボタンをクリックしたときに、繰り返し入力欄の内容がbacking beanの内容に戻ってしまう。</li>
+            </ul>
+        </div>
+
+    </h:body>
+</html>
+

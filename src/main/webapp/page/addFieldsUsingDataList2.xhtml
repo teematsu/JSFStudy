@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <style>
+            .repeated-form .ui-datalist-content.ui-widget-content {
+                border: none;
+            }
+        </style>
+    </h:head>
+    <h:body>
+
+        <h:form>
+            入力欄:
+            <ul>
+                <p:dataList value="#{addFieldsPage2.subBeans}" var="subBean" varStatus="subBeansStatus" type="none" styleClass="repeated-form">
+                    <ui:fragment rendered="#{not subBean.deleted}">
+                        <li>
+                            #{subBeansStatus.index}
+                            <ui:remove>
+                                以下のとおりsubBeanStatusを参照する方法だと、問題が起きる。EL式評価の環境にsubBeanStatusが含まれていないのかもしれない。
+                                h:inputTextについては、validate時にNullPointerException。
+                                h:commandButtonについては、常にsubBeansStatus.indexが0。
+                                <h:inputText id="strField" value="#{addFieldsPage2.subBeans[subBeansStatus.index].strField}"/>
+                                <h:commandButton value="削除" action="#{addFieldsPage2.removeSubBean(subBeansStatus.index)}" />
+                            </ui:remove>
+                            <h:inputText id="strField" value="#{subBean.strField}"/>
+                            <h:commandButton value="削除" action="#{addFieldsPage2.removeSubBeanObject(subBean)}" immediate="true"/>
+                            <h:message for="strField" />
+                        </li>
+                    </ui:fragment>
+                </p:dataList>
+                <li>
+                    <h:commandButton value="追加する" action="#{addFieldsPage2.addSubBean()}" immediate="true"/>
+                </li>
+            </ul>
+            <div>
+                繰り返しとは無関係の入力欄: 
+                <h:inputText id="anotherField" value="#{addFieldsPage2.anotherField}" />
+                <h:message for="anotherField" />
+            </div>
+            <div>
+                <h:commandButton value="送信" action="#{addFieldsPage2.save()}" />
+            </div>
+        </h:form>
+
+        <br/>
+        <br/>
+        <p>
+            <h:link outcome="addFieldsUsingDataList.xhtml">addFieldsUsingDataList.xhtml</h:link>をさらに以下のとおり改変
+            <ul>
+                <li>(1) 入力欄の削除時、backing beanからは削除せずに、削除フラグを立てる。Facelet上は、renderedを利用して、削除フラグが立っていれば表示しない。</li>
+                <li>(2) [送信]ボタンを押した場合など入力が確定した場合でも、同じviewをその後も使うのであれば、削除フラグが立った要素は backing bean に残しておき削除しない。</li>
+            </ul>
+            以上の変更により、addFieldsUsingDataList.xhtmlで問題であった、削除ボタンにimmediate="true"を指定できない問題は解決している。
+        </p>
+        <p>
+            backing beanのlistから要素を削除すると、listの要素とは異なる値が入力欄に表示されることがある。
+            これは、その入力欄(UIInput)にsubmitted valueが残っている場合に発生すると思われる。例えばvalidationエラーがあり、
+            modelに反映されなかった場合、submitted valueが残る。残ったまま、対応する要素がlistから削除されると、
+            繰り上がって、そのUIInputの新しい相手になったlistの要素は、そのUIInputによって表示されず、残っているsubmitted valueが
+            代わりに表示される。これは、[送信]ボタンで全validationをパスした場合でも発生する。
+            その[送信]ボタンを押したときにrendered=falseとなっているコンポーネント配下のUIInputは、validationも行われず、
+            以前のsubmitted valueが残ったままとなっている、ということだと思われる。
+        </p>
+            
+
+    </h:body>
+</html>
+

@@ -1,0 +1,74 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <style>
+            .repeated-form .ui-datalist-content.ui-widget-content {
+                border: none;
+            }
+        </style>
+    </h:head>
+    <h:body>
+
+        <h:form>
+            入力欄:
+            <ul>
+                <p:dataList value="#{addFieldsPage.subBeans}" var="subBean" varStatus="subBeansStatus" type="none" styleClass="repeated-form">
+                    <li>
+                        #{subBeansStatus.index}
+                        <ui:remove>
+                            以下のとおりsubBeanStatusを参照する方法だと、問題が起きる。EL式評価の環境にsubBeanStatusが含まれていないのかもしれない。
+                            h:inputTextについては、validate時にNullPointerException。
+                            h:commandButtonについては、常にsubBeansStatus.indexが0。
+                            <h:inputText id="strField" value="#{addFieldsPage.subBeans[subBeansStatus.index].strField}"/>
+                            <h:commandButton value="削除" action="#{addFieldsPage.removeSubBean(subBeansStatus.index)}" />
+                        </ui:remove>
+                        <h:inputText id="strField" value="#{subBean.strField}"/>
+                        <h:commandButton value="削除" action="#{addFieldsPage.removeSubBeanObject(subBean)}"/>
+                        <h:message for="strField" />
+                    </li>
+                </p:dataList>
+                <li>
+                    <h:commandButton value="追加する" action="#{addFieldsPage.addSubBean()}" immediate="true"/>
+                </li>
+            </ul>
+            <div>
+                繰り返しとは無関係の入力欄: 
+                <h:inputText id="anotherField" value="#{addFieldsPage.anotherField}" />
+                <h:message for="anotherField" />
+            </div>
+            <div>
+                <h:commandButton value="送信" action="#{addFieldsPage.save()}" />
+            </div>
+        </h:form>
+
+        <br/>
+        <br/>
+        <div>
+            この例のように以下の構成であれば問題なく使える。
+            <ul>
+                <li>p:dataListを使う。</li>
+                <li>p:dataListのvarStatusは使わない。</li>
+                <li>
+                    immediate="true"の状態でlistの要素を削除しない。<br/>
+                    → immediate=trueで削除すると、次の画面表示時にはUIComponentが持っている submitted valueが表示され、listの内容は反映されないため、
+                    listのどこの要素を削除した場合でも、最後の入力欄が削除されたように見える。
+                    (入力欄の数だけ1減って、先頭のn-1個の内容は、どこを削除したかに関わらず表示される。 )
+                    <br/>
+                    →削除を実現したい場合は、削除フラグをたて、renderedで隠し、入力確定時に削除フラグが付いたものを削除するとよいかもしれない。
+                    
+                </li>
+            </ul>
+            <p>
+            p:dataListは、type="none"を指定すればul, dl, ol などは出力されない。
+            ただし、border付きのdivは出力されてしまう。borderが不要な場合はCSSで対処する。            
+            </p>
+            
+        </div>
+
+    </h:body>
+</html>
+

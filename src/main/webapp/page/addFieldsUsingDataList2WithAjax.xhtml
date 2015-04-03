@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    
+    <h:head>
+        <style>
+            .repeated-form .ui-datalist-content.ui-widget-content {
+                border: none;
+            }
+        </style>
+    </h:head>
+    <h:body>
+
+        
+        <h:form>
+            入力欄:
+            <ul>
+                <p:dataList id="subBeanList" value="#{addFieldsPage2.subBeans}" var="subBean" varStatus="subBeansStatus" type="none" styleClass="repeated-form">
+                    <ui:fragment rendered="#{not subBean.deleted}">
+                        <li>
+                            #{subBeansStatus.index}
+                            <ui:remove>
+                                以下のとおりsubBeanStatusを参照する方法だと、問題が起きる。EL式評価の環境にsubBeanStatusが含まれていないのかもしれない。
+                                h:inputTextについては、validate時にNullPointerException。
+                                h:commandButtonについては、常にsubBeansStatus.indexが0。
+                                <h:inputText id="strField" value="#{addFieldsPage2.subBeans[subBeansStatus.index].strField}"/>
+                                <h:commandButton value="削除" action="#{addFieldsPage2.removeSubBean(subBeansStatus.index)}" />
+                            </ui:remove>
+                            <h:inputText id="strField" value="#{subBean.strField}"/>
+                            <h:commandButton value="削除" action="#{addFieldsPage2.removeSubBeanObject(subBean)}" immediate="true">
+                                <f:ajax execute="subBeanList" render="subBeanList" />
+                            </h:commandButton>
+                            <h:message for="strField" />
+                        </li>
+                    </ui:fragment>
+                </p:dataList>
+                <li>
+                    <h:commandButton value="追加する" action="#{addFieldsPage2.addSubBean()}" immediate="true">
+                        <f:ajax execute="subBeanList" render="subBeanList" />
+                    </h:commandButton>
+                </li>
+            </ul>
+            <div>
+                繰り返しとは無関係の入力欄: 
+                <h:inputText id="anotherField" value="#{addFieldsPage2.anotherField}" />
+                <h:message for="anotherField" />
+            </div>
+            <div>
+                <h:commandButton value="送信" action="#{addFieldsPage2.save()}" />
+            </div>
+        </h:form>
+
+        <br/>
+        <br/>
+        <p>
+            <h:link outcome="addFieldsUsingDataList2.xhtml">addFieldsUsingDataList2.xhtml</h:link>をさらに以下のとおり改変
+            <ul>
+                <li>入力欄の追加・削除はAJAXで更新。p:dataListを更新。</li>
+            </ul>
+        </p>
+            
+
+    </h:body>
+</html>
+
