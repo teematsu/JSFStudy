@@ -1,4 +1,4 @@
-package jsfstudy;
+package jsfstudy.web.page;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ViewScoped;
